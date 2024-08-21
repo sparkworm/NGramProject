@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://dkcam2sws0duk"]
+
+[ext_resource type="Script" path="res://general/main.gd" id="1_8aeb6"]
+[ext_resource type="PackedScene" uid="uid://8wg447p1bhda" path="res://things/n_gram_visualizer/n_gram_visualizer.tscn" id="1_q1nlv"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_8aeb6")
+
+[node name="NGramVisualizer" parent="." instance=ExtResource("1_q1nlv")]

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://si3p8h4hs2k3"]
+
+[ext_resource type="Script" path="res://general/camera.gd" id="1_f1psh"]
+
+[node name="Camera2D" type="Camera2D"]
+script = ExtResource("1_f1psh")
+move_max_speed = 200
+move_acceleration = 800
+move_decceleration = 600

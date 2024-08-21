@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://fikght2r2xid"]
+
+[ext_resource type="Script" path="res://things/key_shapes/key_pos.gd" id="1_bem4b"]
+
+[node name="KeyPos" type="Marker2D"]
+script = ExtResource("1_bem4b")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+position = Vector2(-0.6, 0)
+scale = Vector2(1.2, 1)
+polygon = PackedVector2Array(0.5, -4, -2, -3, -2.83333, 0, -2, 3, 0.5, 4, 3, 3, 3.83333, 0, 3, -3)

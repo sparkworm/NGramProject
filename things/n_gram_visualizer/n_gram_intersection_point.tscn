@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://86820q22ibqu"]
+
+[ext_resource type="Shader" path="res://things/n_gram_visualizer/n_gram_intersection_point.gdshader" id="1_vreaj"]
+[ext_resource type="Script" path="res://things/n_gram_visualizer/n_gram_intersection_point.gd" id="2_6wmg5"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7ut6o"]
+shader = ExtResource("1_vreaj")
+shader_parameter/min_size = 2.5
+shader_parameter/max_size = 3.0
+shader_parameter/grow_speed = 4.0
+
+[node name="NGramIntersectionPoint" type="Polygon2D"]
+material = SubResource("ShaderMaterial_7ut6o")
+polygon = PackedVector2Array(0, -3, 3, 0, 0, 3, -3, 0)
+script = ExtResource("2_6wmg5")
