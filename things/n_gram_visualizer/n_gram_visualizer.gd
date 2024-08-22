@@ -1,5 +1,7 @@
 extends Node2D
 
+@export var float_error_limit: float = 0.001
+@export_category("Colors")
 @export var line_color: Color
 @export var point_color: Color
 @export var intersection_point_on_line_color: Color
@@ -20,6 +22,8 @@ var lines: Array[NGramLine]
 @onready var n_gram_creation_ui = $CanvasLayer/NGramCreationUI
 
 func _ready() -> void:
+	print(Vector2(-0.000005, -444).is_equal_approx(Vector2(-0.000058, -444.0001)))
+	
 	RenderingServer.set_default_clear_color(background_color)
 	
 	var create_n_gram_callable := Callable(self, "create_n_gram")
@@ -135,7 +139,8 @@ func place_line_intersection_points() -> void:
 			if not intersection_location == Vector2.INF:
 				var new_point := NGramIntersectionPoint.new()
 				new_point.position = intersection_location
-				new_point.is_on_line = l.is_point_on_line(new_point.position)
+				new_point.is_on_line = l.is_point_on_line(new_point.position, \
+						float_error_limit)
 				new_intersection_points.append(new_point)
 	
 	#print(new_intersection_points, "\n\n")
@@ -160,14 +165,25 @@ func place_line_intersection_points() -> void:
 func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 		 -> Array[NGramIntersectionPoint]:
 	var unique: Array[NGramIntersectionPoint] = []
-
+	
+	#print("\n\nNot unique:")
+	#for item in array:
+		#print(item)
+	
 	for item in array:
 		var is_unique: bool = true
 		for u: NGramIntersectionPoint in unique:
-			if item.position.is_equal_approx(u.position):
+			#if item.position.is_equal_approx(u.position):
+			var x_diff: float = abs(item.position.x - u.position.x)
+			var y_diff: float = abs(item.position.y - u.position.y)
+			if x_diff < float_error_limit and y_diff < float_error_limit:
 				is_unique = false
 				break;
 		if is_unique:
 			unique.append(item)
+	
+	#print("\n\nUnique:")
+	#for item in unique:
+		#print(item)
 	
 	return unique

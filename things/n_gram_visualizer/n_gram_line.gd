@@ -46,14 +46,14 @@ func get_point_of_intersection(other: NGramLine) -> Vector2:
 	
 	return Vector2(x, y)
 
-func is_point_on_line(pos: Vector2) -> bool:
+func is_point_on_line(pos: Vector2, float_error: float) -> bool:
 	var lesser_x: float = min(point0.position.x, point1.position.x)
 	var greater_x: float = max(point0.position.x, point1.position.x)
-	if not is_equal_approx(lesser_x, greater_x):
-		return ((lesser_x < pos.x) or (is_equal_approx(lesser_x, pos.x))) \
-				and ((pos.x < greater_x) or (is_equal_approx(greater_x, pos.x)))
+	if not abs(lesser_x - greater_x) < float_error:
+		return ((lesser_x < pos.x) or (abs(lesser_x - pos.x) < float_error)) \
+				and ((pos.x < greater_x) or (abs(greater_x - pos.x) < float_error))
 	
 	var lesser_y: float = min(point0.position.y, point1.position.y)
 	var greater_y: float = max(point0.position.y, point1.position.y)
-	return ((lesser_y < pos.y) or (is_equal_approx(lesser_y, pos.y))) \
-				and ((pos.y < greater_y) or (is_equal_approx(greater_y, pos.y)))
+	return ((lesser_y < pos.y) or (abs(lesser_y - pos.y) < float_error)) \
+				and ((pos.y < greater_y) or (abs(greater_y - pos.y)))

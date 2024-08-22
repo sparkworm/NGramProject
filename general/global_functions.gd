@@ -14,3 +14,6 @@ func vector_array_unique(array: Array[Vector2]) -> Array[Vector2]:
 			unique.append(item)
 	
 	return unique
+
+func are_floats_within_error(a: float, b: float, error: float) -> bool:
+	return abs(a - b) < error
