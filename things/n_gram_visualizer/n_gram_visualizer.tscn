@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://8wg447p1bhda"]
+[gd_scene load_steps=8 format=3 uid="uid://8wg447p1bhda"]
 
 [ext_resource type="Script" path="res://things/n_gram_visualizer/n_gram_visualizer.gd" id="1_77xlm"]
 [ext_resource type="PackedScene" uid="uid://dj1r85j7cxj4q" path="res://things/n_gram_visualizer/n_gram_point.tscn" id="2_7ai21"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ck0in3yddtnqq" path="res://things/n_gram_visualizer/n_gram_line.tscn" id="3_6yi7g"]
 [ext_resource type="PackedScene" uid="uid://86820q22ibqu" path="res://things/n_gram_visualizer/n_gram_intersection_point.tscn" id="4_4o62k"]
 [ext_resource type="PackedScene" uid="uid://d4c0rhpuvv4pt" path="res://things/n_gram_visualizer/n_gram_creation_ui.tscn" id="5_jowjq"]
+[ext_resource type="PackedScene" uid="uid://h4ew8ftojv5h" path="res://things/n_gram_visualizer/information_display.tscn" id="7_tmx8k"]
 
 [node name="NGramVisualizer" type="Node2D"]
 script = ExtResource("1_77xlm")
@@ -28,3 +29,11 @@ intersection_point_scene = ExtResource("4_4o62k")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="NGramCreationUI" parent="CanvasLayer" instance=ExtResource("5_jowjq")]
+
+[node name="InformationDisplay" parent="CanvasLayer" instance=ExtResource("7_tmx8k")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 0

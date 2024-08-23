@@ -1,4 +1,13 @@
+class_name NGramVisualizer
 extends Node2D
+
+enum DataTypes {
+	VERTICES,
+	LINES,
+	TOTAL_INTERSECTION_POINTS,
+	INSIDE_INTERSECTION_POINTS,
+	OUTSIDE_INTERSECTION_POINTS,
+}
 
 #region export variables
 
@@ -23,11 +32,11 @@ var intersection_points: Array[Polygon2D]
 var lines: Array[NGramLine]
 ## a dictionary conataining data regarding the currently displayed n-gram
 var n_gram_data: Dictionary = {
-	"vertices" : 0,
-	"lines" : 0,
-	"total_intersection_points" : 0,
-	"inside_intersection_points" : 0,
-	"outside_intersection_points" : 0,
+	DataTypes.VERTICES : 0,
+	DataTypes.LINES : 0,
+	DataTypes.TOTAL_INTERSECTION_POINTS : 0,
+	DataTypes.INSIDE_INTERSECTION_POINTS : 0,
+	DataTypes.OUTSIDE_INTERSECTION_POINTS : 0,
 }
 
 #endregion
@@ -37,7 +46,10 @@ var n_gram_data: Dictionary = {
 @onready var points_parent = $Points
 @onready var lines_parent = $Lines
 @onready var intersection_points_parent = $IntersectionPoints
-@onready var n_gram_creation_ui = $CanvasLayer/NGramCreationUI
+@onready var n_gram_creation_ui:NGramCreationUI = \
+		$CanvasLayer/NGramCreationUI
+@onready var information_display_ui: NGramInformationDisplay = \
+		$CanvasLayer/InformationDisplay
 
 #endregion
 
@@ -77,6 +89,8 @@ func add_point(pos: Vector2) -> void:
 	points_parent.add_child(new_point)
 	points.append(new_point)
 	connect_new_point(new_point)
+	n_gram_data[DataTypes.VERTICES] += 1
+	_update_data(DataTypes.VERTICES)
 
 func add_line(p1: NGramPoint, p2: NGramPoint) -> void:
 	var new_line: NGramLine = line_scene.instantiate()
@@ -84,6 +98,8 @@ func add_line(p1: NGramPoint, p2: NGramPoint) -> void:
 	new_line.modulate = line_color
 	lines_parent.add_child(new_line)
 	lines.append(new_line)
+	n_gram_data[DataTypes.LINES] += 1
+	_update_data(DataTypes.LINES)
 
 func connect_new_point(new_point: NGramPoint) -> void:
 	for point: NGramPoint in points:
@@ -100,9 +116,14 @@ func remove_point(point: NGramPoint) -> void:
 	for line: NGramLine in lines_to_erase:
 		line.queue_free()
 		lines.erase(line)
+		n_gram_data[DataTypes.LINES] -= 1
 	
 	point.queue_free()
 	points.erase(point)
+	
+	n_gram_data[DataTypes.VERTICES] -= 1
+	_update_data(DataTypes.VERTICES)
+	_update_data(DataTypes.LINES)
 
 func remove_all_points() -> void:
 	for child: Node in points_parent.get_children():
@@ -117,6 +138,17 @@ func remove_all_points() -> void:
 	points = []
 	lines = []
 	intersection_points = []
+	# NOTE: This is stupid
+	n_gram_data[DataTypes.VERTICES] = 0
+	n_gram_data[DataTypes.LINES] = 0
+	n_gram_data[DataTypes.TOTAL_INTERSECTION_POINTS] = 0
+	n_gram_data[DataTypes.INSIDE_INTERSECTION_POINTS] = 0
+	n_gram_data[DataTypes.OUTSIDE_INTERSECTION_POINTS] = 0
+	_update_data(DataTypes.VERTICES)
+	_update_data(DataTypes.LINES)
+	_update_data(DataTypes.TOTAL_INTERSECTION_POINTS)
+	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
+	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
 
 func create_n_gram(point_num: int, radius: float) -> void:
 	for p: int in range(0,point_num):
@@ -157,26 +189,38 @@ func place_line_intersection_points() -> void:
 			if not intersection_location == Vector2.INF:
 				var new_point := NGramIntersectionPoint.new()
 				new_point.position = intersection_location
-				new_point.is_on_line = l.is_point_on_line(new_point.position, \
+				new_point.is_on_line = \
+						l.is_point_on_line(new_point.position, \
+						float_error_limit) && \
+						unintersected.is_point_on_line(new_point.position, \
 						float_error_limit)
 				new_intersection_points.append(new_point)
-	
-	#print(new_intersection_points, "\n\n")
 	
 	# remove array duplicates
 	new_intersection_points.assign(\
 			_intersection_point_array_unique(new_intersection_points))
 	
-	#new_intersection_points.sort()
 	
-	#for n in new_intersection_points:
-		#print(n)
 	
 	print("\nsize: ", new_intersection_points.size())
 	
+	
+	var num_points_on_line: int = 0
 	for p: NGramIntersectionPoint in new_intersection_points:
 		add_intersection_point(p)
+		if p.is_on_line:
+			num_points_on_line += 1
 	
+	n_gram_data[DataTypes.TOTAL_INTERSECTION_POINTS] = \
+			new_intersection_points.size()
+	n_gram_data[DataTypes.INSIDE_INTERSECTION_POINTS] = \
+			num_points_on_line
+	n_gram_data[DataTypes.OUTSIDE_INTERSECTION_POINTS] = \
+			new_intersection_points.size() - num_points_on_line
+	
+	_update_data(DataTypes.TOTAL_INTERSECTION_POINTS)
+	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
+	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
 
 #endregion
 
@@ -199,5 +243,8 @@ func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 			unique.append(item)
 	
 	return unique
+
+func _update_data(data_type: DataTypes) -> void:
+	information_display_ui.update_data(data_type, n_gram_data[data_type])
 
 #endregion
