@@ -1,13 +1,13 @@
 extends Node2D
 
 @export var float_error_limit: float = 0.001
-@export_category("Colors")
+@export_group("Colors")
 @export var line_color: Color
 @export var point_color: Color
 @export var intersection_point_on_line_color: Color
 @export var intersection_point_outside_line_color: Color
 @export var background_color: Color
-@export_category("Scenes")
+@export_group("Scenes")
 @export var point_scene: PackedScene
 @export var line_scene: PackedScene
 @export var intersection_point_scene: PackedScene
@@ -15,6 +15,14 @@ extends Node2D
 var points: Array[NGramPoint]
 var intersection_points: Array[Polygon2D]
 var lines: Array[NGramLine]
+## a dictionary conataining data regarding the currently displayed n-gram
+var n_gram_data: Dictionary = {
+	"vertices" : 0,
+	"lines" : 0,
+	"total_intersection_points" : 0,
+	"inside_intersection_points" : 0,
+	"outside_intersection_points" : 0,
+}
 
 @onready var points_parent = $Points
 @onready var lines_parent = $Lines
@@ -22,8 +30,6 @@ var lines: Array[NGramLine]
 @onready var n_gram_creation_ui = $CanvasLayer/NGramCreationUI
 
 func _ready() -> void:
-	print(Vector2(-0.000005, -444).is_equal_approx(Vector2(-0.000058, -444.0001)))
-	
 	RenderingServer.set_default_clear_color(background_color)
 	
 	var create_n_gram_callable := Callable(self, "create_n_gram")
@@ -36,6 +42,8 @@ func _ready() -> void:
 			Callable(self, "place_line_intersection_points")
 	n_gram_creation_ui.generate_intersection_points.connect(\
 			generate_intersection_points_callable)
+	
+	
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("right_click"):
