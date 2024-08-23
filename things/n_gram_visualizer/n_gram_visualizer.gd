@@ -1,5 +1,7 @@
 extends Node2D
 
+#region export variables
+
 @export var float_error_limit: float = 0.001
 @export_group("Colors")
 @export var line_color: Color
@@ -11,6 +13,10 @@ extends Node2D
 @export var point_scene: PackedScene
 @export var line_scene: PackedScene
 @export var intersection_point_scene: PackedScene
+
+#endregion
+
+#region variables
 
 var points: Array[NGramPoint]
 var intersection_points: Array[Polygon2D]
@@ -24,10 +30,16 @@ var n_gram_data: Dictionary = {
 	"outside_intersection_points" : 0,
 }
 
+#endregion
+
+#region onready variables
+
 @onready var points_parent = $Points
 @onready var lines_parent = $Lines
 @onready var intersection_points_parent = $IntersectionPoints
 @onready var n_gram_creation_ui = $CanvasLayer/NGramCreationUI
+
+#endregion
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(background_color)
@@ -42,8 +54,6 @@ func _ready() -> void:
 			Callable(self, "place_line_intersection_points")
 	n_gram_creation_ui.generate_intersection_points.connect(\
 			generate_intersection_points_callable)
-	
-	
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("right_click"):
@@ -170,13 +180,11 @@ func place_line_intersection_points() -> void:
 
 #endregion
 
+#region utility
+
 func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 		 -> Array[NGramIntersectionPoint]:
 	var unique: Array[NGramIntersectionPoint] = []
-	
-	#print("\n\nNot unique:")
-	#for item in array:
-		#print(item)
 	
 	for item in array:
 		var is_unique: bool = true
@@ -190,8 +198,6 @@ func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 		if is_unique:
 			unique.append(item)
 	
-	#print("\n\nUnique:")
-	#for item in unique:
-		#print(item)
-	
 	return unique
+
+#endregion
