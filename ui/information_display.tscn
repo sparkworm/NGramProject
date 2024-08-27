@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://h4ew8ftojv5h"]
 
-[ext_resource type="Script" path="res://things/n_gram_visualizer/information_display.gd" id="1_ufvse"]
+[ext_resource type="Script" path="res://ui/information_display.gd" id="1_ufvse"]
 
 [node name="InformationDisplay" type="Control" node_paths=PackedStringArray("vertices_count", "lines_count", "total_intersections_count", "inside_intersections_count", "outside_intersections_count")]
 layout_mode = 3

@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://8wg447p1bhda"]
 
-[ext_resource type="Script" path="res://things/n_gram_visualizer/n_gram_visualizer.gd" id="1_77xlm"]
-[ext_resource type="PackedScene" uid="uid://dj1r85j7cxj4q" path="res://things/n_gram_visualizer/n_gram_point.tscn" id="2_7ai21"]
+[ext_resource type="Script" path="res://n_gram_visualizer.gd" id="1_77xlm"]
+[ext_resource type="PackedScene" uid="uid://dj1r85j7cxj4q" path="res://n_gram_structure/n_gram_point.tscn" id="2_7ai21"]
 [ext_resource type="PackedScene" uid="uid://si3p8h4hs2k3" path="res://general/camera.tscn" id="2_7gs1u"]
-[ext_resource type="PackedScene" uid="uid://ck0in3yddtnqq" path="res://things/n_gram_visualizer/n_gram_line.tscn" id="3_6yi7g"]
-[ext_resource type="PackedScene" uid="uid://86820q22ibqu" path="res://things/n_gram_visualizer/n_gram_intersection_point.tscn" id="4_4o62k"]
-[ext_resource type="PackedScene" uid="uid://d4c0rhpuvv4pt" path="res://things/n_gram_visualizer/n_gram_creation_ui.tscn" id="5_jowjq"]
-[ext_resource type="PackedScene" uid="uid://h4ew8ftojv5h" path="res://things/n_gram_visualizer/information_display.tscn" id="7_tmx8k"]
+[ext_resource type="PackedScene" uid="uid://ck0in3yddtnqq" path="res://n_gram_structure/n_gram_line.tscn" id="3_6yi7g"]
+[ext_resource type="PackedScene" uid="uid://86820q22ibqu" path="res://annotations/n_gram_intersection_point.tscn" id="4_4o62k"]
+[ext_resource type="PackedScene" uid="uid://d4c0rhpuvv4pt" path="res://ui/n_gram_creation_ui.tscn" id="5_jowjq"]
+[ext_resource type="PackedScene" uid="uid://h4ew8ftojv5h" path="res://ui/information_display.tscn" id="7_tmx8k"]
 
 [node name="NGramVisualizer" type="Node2D"]
 script = ExtResource("1_77xlm")

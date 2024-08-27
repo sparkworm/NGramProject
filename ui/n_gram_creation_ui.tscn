@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d4c0rhpuvv4pt"]
 
-[ext_resource type="Script" path="res://things/n_gram_visualizer/n_gram_creation_ui.gd" id="1_dap8h"]
+[ext_resource type="Script" path="res://ui/n_gram_creation_ui.gd" id="1_dap8h"]
 
 [node name="NGramCreationUI" type="Control" node_paths=PackedStringArray("gram_points_field", "gram_radius_field", "create_gram_button", "generate_i_p_button", "clear_all_points_button")]
 layout_mode = 3
