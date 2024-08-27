@@ -10,14 +10,14 @@ config_version=5
 
 [application]
 
-config/name="Random Interesting Things"
+config/name="NGramProject"
 run/main_scene="res://general/main.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GlobalFunctions="*res://general/global_functions.gd"
+GlobalFunctions="res://general/global_functions.gd"
 
 [debug]
 
