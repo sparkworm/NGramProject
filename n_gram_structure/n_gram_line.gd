@@ -7,6 +7,8 @@ extends Line2D
 var point0: NGramPoint
 var point1: NGramPoint
 
+var points_on_line: Array = []
+
 func init(p0: NGramPoint, p1: NGramPoint) -> void:
 	point0 = p0
 	point1 = p1
@@ -49,11 +51,17 @@ func get_point_of_intersection(other: NGramLine) -> Vector2:
 func is_point_on_line(pos: Vector2, float_error: float) -> bool:
 	var lesser_x: float = min(point0.position.x, point1.position.x)
 	var greater_x: float = max(point0.position.x, point1.position.x)
+	var ans: bool
 	if not abs(lesser_x - greater_x) < float_error:
-		return ((lesser_x < pos.x) or (abs(lesser_x - pos.x) < float_error)) \
+		ans = ((lesser_x < pos.x) or (abs(lesser_x - pos.x) < float_error)) \
 				and ((pos.x < greater_x) or (abs(greater_x - pos.x) < float_error))
-	
-	var lesser_y: float = min(point0.position.y, point1.position.y)
-	var greater_y: float = max(point0.position.y, point1.position.y)
-	return ((lesser_y < pos.y) or (abs(lesser_y - pos.y) < float_error)) \
-				and ((pos.y < greater_y) or (abs(greater_y - pos.y)))
+	else:
+		var lesser_y: float = min(point0.position.y, point1.position.y)
+		var greater_y: float = max(point0.position.y, point1.position.y)
+		ans = ((lesser_y < pos.y) or (abs(lesser_y - pos.y) < float_error)) \
+					and ((pos.y < greater_y) or (abs(greater_y - pos.y)))
+	if ans:
+		# ALERT: THIS ENDS UP ADDING REDUNTAND POINTS
+		# REQUIRES FIX ASAP
+		points_on_line.append(pos)
+	return ans

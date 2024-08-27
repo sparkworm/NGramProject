@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://ui/n_gram_creation_ui.gd" id="1_dap8h"]
 
-[node name="NGramCreationUI" type="Control" node_paths=PackedStringArray("gram_points_field", "gram_radius_field", "create_gram_button", "generate_i_p_button", "clear_all_points_button")]
+[node name="NGramCreationUI" type="Control" node_paths=PackedStringArray("gram_points_field", "gram_radius_field", "create_gram_button", "generate_i_p_button", "clear_all_points_button", "fragment_lines_button")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
@@ -13,6 +13,7 @@ gram_radius_field = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxC
 create_gram_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/CreateNGramButton")
 generate_i_p_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/GenerateIntersectionPoints")
 clear_all_points_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/ClearAllPointsButton")
+fragment_lines_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/FragmentLinesButton")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 0
@@ -61,10 +62,15 @@ text = "Create n-gram"
 layout_mode = 2
 text = "Generate Intersection Points"
 
+[node name="FragmentLinesButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Fragment lines"
+
 [node name="ClearAllPointsButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Clear all points"
 
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/CreateNGramButton" to="." method="_on_create_n_gram_button_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/GenerateIntersectionPoints" to="." method="_on_generate_intersection_points_pressed"]
+[connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/FragmentLinesButton" to="." method="_on_fragment_lines_button_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/ClearAllPointsButton" to="." method="_on_clear_all_points_button_pressed"]

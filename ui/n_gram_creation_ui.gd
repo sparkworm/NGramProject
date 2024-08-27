@@ -4,12 +4,14 @@ extends Control
 signal create_button_pressed(point_num: int, radius: float)
 signal generate_intersection_points
 signal clear_all_points
+signal fragment_lines_button_pressed
 
 @export var gram_points_field: LineEdit
 @export var gram_radius_field: LineEdit
 @export var create_gram_button: Button
 @export var generate_i_p_button: Button
 @export var clear_all_points_button: Button
+@export var fragment_lines_button: Button
 
 
 func clear_text_fields() -> void:
@@ -34,3 +36,9 @@ func _on_clear_all_points_button_pressed():
 func _on_generate_intersection_points_pressed():
 	generate_intersection_points.emit()
 	generate_i_p_button.release_focus()
+
+
+func _on_fragment_lines_button_pressed() -> void:
+	print("I've been pressed!!!")
+	fragment_lines_button_pressed.emit()
+	fragment_lines_button.release_focus()

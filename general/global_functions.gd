@@ -15,5 +15,5 @@ func vector_array_unique(array: Array[Vector2]) -> Array[Vector2]:
 	
 	return unique
 
-func are_floats_within_error(a: float, b: float, error: float) -> bool:
+func f_within_error(a: float, b: float, error: float) -> bool:
 	return abs(a - b) < error

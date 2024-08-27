@@ -66,6 +66,11 @@ func _ready() -> void:
 			Callable(self, "place_line_intersection_points")
 	n_gram_creation_ui.generate_intersection_points.connect(\
 			generate_intersection_points_callable)
+	
+	var fragment_lines_callable := \
+			Callable(self, "fragment_all_lines")
+	n_gram_creation_ui.fragment_lines_button_pressed.connect(\
+			fragment_lines_callable)
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("right_click"):
@@ -82,15 +87,17 @@ func _process(_delta: float) -> void:
 
 #region main structure
 
-func add_point(pos: Vector2) -> void:
+func add_point(pos: Vector2, connect_to_others=true) -> NGramPoint:
 	var new_point: NGramPoint = point_scene.instantiate()
 	new_point.position = pos
 	new_point.modulate = point_color
 	points_parent.add_child(new_point)
 	points.append(new_point)
-	connect_new_point(new_point)
+	if connect_to_others:
+		connect_new_point(new_point)
 	n_gram_data[DataTypes.VERTICES] += 1
 	_update_data(DataTypes.VERTICES)
+	return new_point
 
 func add_line(p1: NGramPoint, p2: NGramPoint) -> void:
 	var new_line: NGramLine = line_scene.instantiate()
@@ -222,6 +229,46 @@ func place_line_intersection_points() -> void:
 	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
 	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
 
+func fragment_line(line: NGramLine) -> bool:
+	if line.points_on_line.size() == 0:
+		print("skipping line")
+		return false
+	var points_array: Array[Vector2]
+	points_array.append_array([line.point0.position, line.point1.position])
+	points_array.append_array(line.points_on_line)
+	# might benefit from changing this to sort_custom
+	points_array.sort()
+	# check the order of the points
+	print(points_array)
+	
+	var previous_point: NGramPoint = null
+	for point: Vector2 in points_array:
+		var new_point := add_point(point, false)
+		# going to perform a lot of unnecessary checks  :(
+		if previous_point != null:
+			add_line(previous_point, new_point)
+		
+		previous_point = new_point
+	
+	return true
+	# gets rid of original line
+	#lines.erase(line)
+	#line.queue_free()
+
+func fragment_all_lines() -> void:
+	# create new variable so that the fragments created don't cause an infinite
+	# loop
+	var lines_to_fragment: Array[NGramLine] = lines.duplicate(false)
+	var lines_to_delete: Array[NGramLine] = []
+	print("Lines to fragment: ", lines_to_fragment.size())
+	for line: NGramLine in lines_to_fragment:
+		if fragment_line(line):
+			lines_to_delete.append(line)
+	
+	for line in lines_to_delete:
+		lines.erase(line)
+		line.queue_free()
+	
 #endregion
 
 #region utility
