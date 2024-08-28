@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GlobalFunctions="res://general/global_functions.gd"
+GlobalFunctions="*res://general/global_functions.gd"
 
 [debug]
 

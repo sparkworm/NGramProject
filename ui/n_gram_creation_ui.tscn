@@ -68,7 +68,7 @@ text = "Fragment lines"
 
 [node name="ClearAllPointsButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Clear all points"
+text = "Clear all"
 
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/CreateNGramButton" to="." method="_on_create_n_gram_button_pressed"]
 [connection signal="pressed" from="PanelContainer/MarginContainer/VBoxContainer/GenerateIntersectionPoints" to="." method="_on_generate_intersection_points_pressed"]

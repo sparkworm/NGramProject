@@ -230,14 +230,16 @@ func place_line_intersection_points() -> void:
 	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
 
 func fragment_line(line: NGramLine) -> bool:
-	if line.points_on_line.size() == 0:
+	if line.points_on_line.size() <= 2:
 		print("skipping line")
 		return false
 	var points_array: Array[Vector2]
-	points_array.append_array([line.point0.position, line.point1.position])
+	#points_array.append_array([line.point0.position, line.point1.position])
 	points_array.append_array(line.points_on_line)
 	# might benefit from changing this to sort_custom
-	points_array.sort()
+	var sort_callable := Callable(GlobalFunctions, "custom_sort_vec2")\
+			.bind(float_error_limit)
+	points_array.sort_custom(sort_callable)
 	# check the order of the points
 	print(points_array)
 	
@@ -268,6 +270,8 @@ func fragment_all_lines() -> void:
 	for line in lines_to_delete:
 		lines.erase(line)
 		line.queue_free()
+		n_gram_data[DataTypes.LINES] -= 1
+		_update_data(DataTypes.LINES)
 	
 #endregion
 

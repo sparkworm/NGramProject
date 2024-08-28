@@ -59,9 +59,18 @@ func is_point_on_line(pos: Vector2, float_error: float) -> bool:
 		var lesser_y: float = min(point0.position.y, point1.position.y)
 		var greater_y: float = max(point0.position.y, point1.position.y)
 		ans = ((lesser_y < pos.y) or (abs(lesser_y - pos.y) < float_error)) \
-					and ((pos.y < greater_y) or (abs(greater_y - pos.y)))
+					and ((pos.y < greater_y) or (abs(greater_y - pos.y) < float_error))
 	if ans:
-		# ALERT: THIS ENDS UP ADDING REDUNTAND POINTS
+		var is_in_points_on_line: bool = false
+		for point: Vector2 in points_on_line:
+			if (abs(pos.x - point.x) < float_error) and \
+					(abs(pos.y - point.y) < float_error):
+				is_in_points_on_line = true
+				break
+		if not is_in_points_on_line:
+			points_on_line.append(pos)
+		else:
+			print("Redundant point ignored")
+		# ALERT: THIS ENDS UP ADDING REDUNDANT POINTS
 		# REQUIRES FIX ASAP
-		points_on_line.append(pos)
 	return ans
