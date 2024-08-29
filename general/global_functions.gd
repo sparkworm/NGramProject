@@ -24,3 +24,6 @@ func custom_sort_vec2(a: Vector2, b: Vector2, float_error: float) -> bool:
 	if abs(a.x - b.x) < float_error:
 		return a.y > b.y
 	return a.x > b.x
+
+func vectors_approx_equal(a: Vector2, b: Vector2, float_error: float) -> bool:
+	return (a - b).length() < float_error
