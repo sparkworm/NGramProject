@@ -85,7 +85,7 @@ func _process(_delta: float) -> void:
 		else:
 			add_point(get_global_mouse_position())
 
-#region main structure
+#region Single NGram component creation
 
 func add_point(pos: Vector2, connect_to_others=true) -> NGramPoint:
 	var new_point: NGramPoint = point_scene.instantiate()
@@ -94,7 +94,7 @@ func add_point(pos: Vector2, connect_to_others=true) -> NGramPoint:
 	points_parent.add_child(new_point)
 	points.append(new_point)
 	if connect_to_others:
-		connect_new_point(new_point)
+		_connect_new_point(new_point)
 	n_gram_data[DataTypes.VERTICES] += 1
 	_update_data(DataTypes.VERTICES)
 	return new_point
@@ -108,10 +108,21 @@ func add_line(p1: NGramPoint, p2: NGramPoint) -> void:
 	n_gram_data[DataTypes.LINES] += 1
 	_update_data(DataTypes.LINES)
 
-func connect_new_point(new_point: NGramPoint) -> void:
-	for point: NGramPoint in points:
-		if point != new_point:
-			add_line(point, new_point)
+func add_intersection_point(point: NGramIntersectionPoint) -> void:
+	var intersection_point: Polygon2D = intersection_point_scene.instantiate()
+	intersection_point.position = point.position
+	if point.is_on_line:
+		intersection_point.modulate = intersection_point_on_line_color
+	else:
+		intersection_point.modulate = intersection_point_outside_line_color
+		intersection_point.rotation = PI/4
+	
+	intersection_points_parent.add_child(intersection_point)
+	intersection_points.append(intersection_point)
+
+#endregion
+
+#region Single NGram component removal
 
 func remove_point(point: NGramPoint) -> void:
 	# remove all lines containing the point
@@ -132,57 +143,66 @@ func remove_point(point: NGramPoint) -> void:
 	_update_data(DataTypes.VERTICES)
 	_update_data(DataTypes.LINES)
 
-func remove_all_points() -> void:
-	for child: Node in points_parent.get_children():
-		points_parent.remove_child(child)
-		child.queue_free()
-	for child: Node in lines_parent.get_children():
-		lines_parent.remove_child(child)
-		child.queue_free()
-	for child: Node in intersection_points_parent.get_children():
-		intersection_points_parent.remove_child(child)
-		child.queue_free()
-	points = []
-	lines = []
-	intersection_points = []
-	# NOTE: This is stupid
-	n_gram_data[DataTypes.VERTICES] = 0
-	n_gram_data[DataTypes.LINES] = 0
-	n_gram_data[DataTypes.TOTAL_INTERSECTION_POINTS] = 0
-	n_gram_data[DataTypes.INSIDE_INTERSECTION_POINTS] = 0
-	n_gram_data[DataTypes.OUTSIDE_INTERSECTION_POINTS] = 0
-	_update_data(DataTypes.VERTICES)
-	_update_data(DataTypes.LINES)
-	_update_data(DataTypes.TOTAL_INTERSECTION_POINTS)
-	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
-	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
+#endregion
+
+#region Single NGram component manipulation
+
+func _connect_new_point(new_point: NGramPoint) -> void:
+	for point: NGramPoint in points:
+		if point != new_point:
+			add_line(point, new_point)
+
+func fragment_line(line: NGramLine) -> bool:
+	if line.points_on_line.size() <= 2:
+		return false
+	var points_array: Array[Vector2]
+	#points_array.append_array([line.point0.position, line.point1.position])
+	points_array.append_array(line.points_on_line)
+	# might benefit from changing this to sort_custom
+	var sort_callable := Callable(GlobalFunctions, "custom_sort_vec2")\
+			.bind(float_error_limit)
+	points_array.sort_custom(sort_callable)
+	
+	var previous_point: NGramPoint = null
+	for point: Vector2 in points_array:
+		var new_point := add_point(point, false)
+		# going to perform a lot of unnecessary checks  :(
+		if previous_point != null:
+			add_line(previous_point, new_point)
+		
+		previous_point = new_point
+	
+	return true
+	# gets rid of original line
+	#lines.erase(line)
+	#line.queue_free()
+
+#endregion
+
+#region Multiple Ngram component functions
 
 func create_n_gram(point_num: int, radius: float) -> void:
 	for p: int in range(0,point_num):
 		var angle := Vector2.from_angle(p*(TAU/point_num))
 		add_point(angle*radius)
-	#place_line_intersection_points()
 
-func add_intersection_point(point: NGramIntersectionPoint) -> void:
-	var intersection_point: Polygon2D = intersection_point_scene.instantiate()
-	intersection_point.position = point.position
-	if point.is_on_line:
-		intersection_point.modulate = intersection_point_on_line_color
-	else:
-		intersection_point.modulate = intersection_point_outside_line_color
-		intersection_point.rotation = PI/4
+func fragment_all_lines() -> void:
+	# create new variable so that the fragments created don't cause an infinite
+	# loop
+	var lines_to_fragment: Array[NGramLine] = lines.duplicate(false)
+	var lines_to_delete: Array[NGramLine] = []
+	for line: NGramLine in lines_to_fragment:
+		if fragment_line(line):
+			lines_to_delete.append(line)
 	
-	intersection_points_parent.add_child(intersection_point)
-	intersection_points.append(intersection_point)
-
-func _clear_intersection_points() -> void:
-	for child: Node in intersection_points_parent.get_children():
-		intersection_points_parent.remove_child(child)
-		child.queue_free()
-	intersection_points = []
+	for line in lines_to_delete:
+		lines.erase(line)
+		line.queue_free()
+		n_gram_data[DataTypes.LINES] -= 1
+		_update_data(DataTypes.LINES)
 
 func place_line_intersection_points() -> void:
-	_clear_intersection_points()
+	clear_intersection_points()
 	
 	var unintersected_lines: Array = lines_parent.get_children()
 	var new_intersection_points: Array[NGramIntersectionPoint]
@@ -224,46 +244,37 @@ func place_line_intersection_points() -> void:
 	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
 	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
 
-func fragment_line(line: NGramLine) -> bool:
-	if line.points_on_line.size() <= 2:
-		return false
-	var points_array: Array[Vector2]
-	#points_array.append_array([line.point0.position, line.point1.position])
-	points_array.append_array(line.points_on_line)
-	# might benefit from changing this to sort_custom
-	var sort_callable := Callable(GlobalFunctions, "custom_sort_vec2")\
-			.bind(float_error_limit)
-	points_array.sort_custom(sort_callable)
-	
-	var previous_point: NGramPoint = null
-	for point: Vector2 in points_array:
-		var new_point := add_point(point, false)
-		# going to perform a lot of unnecessary checks  :(
-		if previous_point != null:
-			add_line(previous_point, new_point)
-		
-		previous_point = new_point
-	
-	return true
-	# gets rid of original line
-	#lines.erase(line)
-	#line.queue_free()
+func clear_intersection_points() -> void:
+	for child: Node in intersection_points_parent.get_children():
+		intersection_points_parent.remove_child(child)
+		child.queue_free()
+	intersection_points = []
 
-func fragment_all_lines() -> void:
-	# create new variable so that the fragments created don't cause an infinite
-	# loop
-	var lines_to_fragment: Array[NGramLine] = lines.duplicate(false)
-	var lines_to_delete: Array[NGramLine] = []
-	for line: NGramLine in lines_to_fragment:
-		if fragment_line(line):
-			lines_to_delete.append(line)
-	
-	for line in lines_to_delete:
-		lines.erase(line)
-		line.queue_free()
-		n_gram_data[DataTypes.LINES] -= 1
-		_update_data(DataTypes.LINES)
-	
+func remove_all_points() -> void:
+	for child: Node in points_parent.get_children():
+		points_parent.remove_child(child)
+		child.queue_free()
+	for child: Node in lines_parent.get_children():
+		lines_parent.remove_child(child)
+		child.queue_free()
+	for child: Node in intersection_points_parent.get_children():
+		intersection_points_parent.remove_child(child)
+		child.queue_free()
+	points = []
+	lines = []
+	intersection_points = []
+	# NOTE: This is stupid
+	n_gram_data[DataTypes.VERTICES] = 0
+	n_gram_data[DataTypes.LINES] = 0
+	n_gram_data[DataTypes.TOTAL_INTERSECTION_POINTS] = 0
+	n_gram_data[DataTypes.INSIDE_INTERSECTION_POINTS] = 0
+	n_gram_data[DataTypes.OUTSIDE_INTERSECTION_POINTS] = 0
+	_update_data(DataTypes.VERTICES)
+	_update_data(DataTypes.LINES)
+	_update_data(DataTypes.TOTAL_INTERSECTION_POINTS)
+	_update_data(DataTypes.INSIDE_INTERSECTION_POINTS)
+	_update_data(DataTypes.OUTSIDE_INTERSECTION_POINTS)
+
 #endregion
 
 #region utility
