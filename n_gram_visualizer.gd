@@ -71,6 +71,11 @@ func _ready() -> void:
 			Callable(self, "fragment_all_lines")
 	n_gram_creation_ui.fragment_lines_button_pressed.connect(\
 			fragment_lines_callable)
+	
+	var count_polygons_callable := \
+			Callable(self, "_count_possible_polygons")
+	n_gram_creation_ui.count_polygons_button_pressed.connect(\
+			count_polygons_callable)
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("right_click"):
@@ -286,7 +291,8 @@ func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 	for item in array:
 		var is_unique: bool = true
 		for u: NGramIntersectionPoint in unique:
-			#if item.position.is_equal_approx(u.position):
+			# NOTE: can likely be improved by simply subtracting vectors and
+			# taking length()
 			var x_diff: float = abs(item.position.x - u.position.x)
 			var y_diff: float = abs(item.position.y - u.position.y)
 			if x_diff < float_error_limit and y_diff < float_error_limit:
@@ -299,5 +305,106 @@ func _intersection_point_array_unique(array: Array[NGramIntersectionPoint])\
 
 func _update_data(data_type: DataTypes) -> void:
 	information_display_ui.update_data(data_type, n_gram_data[data_type])
+
+func _count_possible_polygons() -> int:
+	var num_polygons: int = 0
+	
+	var lines_remaining: Array[LineData] = []
+	for line: NGramLine in lines:
+		lines_remaining.append(line.generate_line_data())
+		#print(line.generate_line_data())
+	
+	print("Line data collected!\nNumber of lines: ", lines_remaining.size())
+	
+	var points_remaining: Array[Vector2] = []
+	for point in points:
+		points_remaining.append(point.position)
+	points_remaining = GlobalFunctions.vector_array_unique(points_remaining, \
+			float_error_limit)
+	
+	print("Point data collected!\nNumber of points: ", points_remaining.size())
+	
+	while points_remaining.size() > 2:
+		print("\n\n\nNew Iteration!")
+		print("Points remaining: ", points_remaining)
+		print("Lines remaining: ", lines_remaining)
+		
+		var point: Vector2 = points_remaining[0]
+		print("This point: ", point)
+		
+		#var lines_with_point: Array[LineData] = \
+				#_get_lines_with_point(lines_remaining, point)
+		
+		num_polygons += _recursive_polygon_trace(point, point, [], lines_remaining)
+		print("Polygons counted: ", \
+				_recursive_polygon_trace(point, point, [], lines_remaining))
+		
+		# erase the point from the array of available points
+		points_remaining.erase(point)
+		# erase all lines that contained the point
+		var lines_to_erase := _get_lines_with_point(lines_remaining, point)
+		for l in lines_to_erase:
+			#print("Erasing line ", l)
+			lines_remaining.erase(l)
+		#print("Erasing complete")
+	
+	print("Polygons (twice answer): ", num_polygons)
+	
+	@warning_ignore("integer_division")
+	return num_polygons / 2
+
+func _recursive_polygon_trace(point: Vector2, target_point: Vector2, \
+		blacklisted_points: Array[Vector2], all_lines: Array[LineData]) -> int:
+	print("Tracing ", blacklisted_points, " to ", point)
+	# the sum of polygons that can be created from this position
+	var sum: int = 0
+	# adds the current point to blacklisted points, but only if it is not the 
+	# target point
+	if not point == target_point:
+		blacklisted_points.append(point)
+	print("Lines connected to point ", point, ": ", \
+			_get_lines_with_point(all_lines, point))
+	for l in _get_lines_with_point(all_lines, point):
+		# identifies the "other" point, which the the point on the given line
+		# that is not the point that was originally specified.  
+		# effectively, this allows checking points that are connected to the
+		# specified point
+		var other_point = l.other_point(point, float_error_limit)
+		# if the point has not been blacklisted yet in this path (has not 
+		# already been traveled over)
+		#elif not blacklisted_points.has(other_point):
+		if not GlobalFunctions.vector_array_has(blacklisted_points, \
+				other_point, float_error_limit):
+			# checks if the other point is the starting point
+			if (target_point - other_point).length() < float_error_limit:
+				if blacklisted_points.size() > 2:
+					sum += 1
+					print("Polygon found: ", blacklisted_points, other_point)
+					break
+				else:
+					break
+			# add the total number of polygons that can be made from the 
+			# "other" point to the sum, which will be returned
+			sum += _recursive_polygon_trace(other_point, target_point, \
+					blacklisted_points, all_lines)
+	
+	return sum
+
+func _get_connected_points(line_array: Array[LineData], p: Vector2) \
+		-> Array[Vector2]:
+	var new_points_array: Array[Vector2] = []
+	for l in line_array:
+		if l.has_point_within_error(p, float_error_limit):
+			# append the point that isn't p
+			new_points_array.append(l.other_point(p, float_error_limit))
+	return new_points_array
+
+func _get_lines_with_point(line_array: Array[LineData], p: Vector2) \
+		-> Array[LineData]:
+	var new_lines_array: Array[LineData] = []
+	for l in line_array:
+		if l.has_point_within_error(p, float_error_limit):
+			new_lines_array.append(l)
+	return new_lines_array
 
 #endregion
