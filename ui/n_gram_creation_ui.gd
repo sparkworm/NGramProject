@@ -39,6 +39,5 @@ func _on_generate_intersection_points_pressed():
 
 
 func _on_fragment_lines_button_pressed() -> void:
-	print("I've been pressed!!!")
 	fragment_lines_button_pressed.emit()
 	fragment_lines_button.release_focus()

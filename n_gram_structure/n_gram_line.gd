@@ -69,8 +69,4 @@ func is_point_on_line(pos: Vector2, float_error: float) -> bool:
 				break
 		if not is_in_points_on_line:
 			points_on_line.append(pos)
-		else:
-			print("Redundant point ignored")
-		# ALERT: THIS ENDS UP ADDING REDUNDANT POINTS
-		# REQUIRES FIX ASAP
 	return ans

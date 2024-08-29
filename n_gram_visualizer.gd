@@ -207,11 +207,6 @@ func place_line_intersection_points() -> void:
 	new_intersection_points.assign(\
 			_intersection_point_array_unique(new_intersection_points))
 	
-	
-	
-	print("\nsize: ", new_intersection_points.size())
-	
-	
 	var num_points_on_line: int = 0
 	for p: NGramIntersectionPoint in new_intersection_points:
 		add_intersection_point(p)
@@ -231,7 +226,6 @@ func place_line_intersection_points() -> void:
 
 func fragment_line(line: NGramLine) -> bool:
 	if line.points_on_line.size() <= 2:
-		print("skipping line")
 		return false
 	var points_array: Array[Vector2]
 	#points_array.append_array([line.point0.position, line.point1.position])
@@ -240,8 +234,6 @@ func fragment_line(line: NGramLine) -> bool:
 	var sort_callable := Callable(GlobalFunctions, "custom_sort_vec2")\
 			.bind(float_error_limit)
 	points_array.sort_custom(sort_callable)
-	# check the order of the points
-	print(points_array)
 	
 	var previous_point: NGramPoint = null
 	for point: Vector2 in points_array:
@@ -262,7 +254,6 @@ func fragment_all_lines() -> void:
 	# loop
 	var lines_to_fragment: Array[NGramLine] = lines.duplicate(false)
 	var lines_to_delete: Array[NGramLine] = []
-	print("Lines to fragment: ", lines_to_fragment.size())
 	for line: NGramLine in lines_to_fragment:
 		if fragment_line(line):
 			lines_to_delete.append(line)
