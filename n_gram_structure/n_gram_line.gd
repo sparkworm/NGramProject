@@ -70,3 +70,7 @@ func is_point_on_line(pos: Vector2, float_error: float) -> bool:
 		if not is_in_points_on_line:
 			points_on_line.append(pos)
 	return ans
+
+func generate_line_data() -> LineData:
+	return LineData.new(point0.position, point1.position)
+	
