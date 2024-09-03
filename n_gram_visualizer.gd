@@ -313,31 +313,29 @@ func _count_possible_polygons() -> int:
 	for line: NGramLine in lines:
 		lines_remaining.append(line.generate_line_data())
 		#print(line.generate_line_data())
-	
-	print("Line data collected!\nNumber of lines: ", lines_remaining.size())
+	#print("Line data collected!\nNumber of lines: ", lines_remaining.size())
 	
 	var points_remaining: Array[Vector2] = []
 	for point in points:
 		points_remaining.append(point.position)
 	points_remaining = GlobalFunctions.vector_array_unique(points_remaining, \
 			float_error_limit)
-	
-	print("Point data collected!\nNumber of points: ", points_remaining.size())
+	#print("Point data collected!\nNumber of points: ", points_remaining.size())
 	
 	while points_remaining.size() > 2:
-		print_rich("\n\n\n[color=white][b]New Iteration![/b][/color]")
-		print("Points remaining: ", points_remaining)
-		print("Lines remaining: ", lines_remaining)
+		#print_rich("\n\n\n[color=white][b]New Iteration![/b][/color]")
+		#print("Points remaining: ", points_remaining)
+		#print("Lines remaining: ", lines_remaining)
 		
 		var point: Vector2 = points_remaining[0]
-		print("This point: ", point)
+		#print("This point: ", point)
 		
 		#var lines_with_point: Array[LineData] = \
 				#_get_lines_with_point(lines_remaining, point)
-		
-		num_polygons += _recursive_polygon_trace(point, point, [], lines_remaining)
-		print("Polygons counted: ", \
-				_recursive_polygon_trace(point, point, [], lines_remaining))
+		var poly_count = \
+				_recursive_polygon_trace(point, point, [], lines_remaining)
+		num_polygons += poly_count
+		#print("Polygons counted: ", poly_count)
 		
 		# erase the point from the array of available points
 		points_remaining.erase(point)
@@ -355,53 +353,54 @@ func _count_possible_polygons() -> int:
 
 func _recursive_polygon_trace(point: Vector2, target_point: Vector2, \
 		blacklisted_points: Array[Vector2], all_lines: Array[LineData]) -> int:
-	CustomIndent.increase_indent()
-	print_rich(CustomIndent, "[color=cyan]ENTERING RECURSION[/color]")
-	print_rich(CustomIndent, "Tracing [color=yellow]", blacklisted_points, 
-			"[/color] to [color=magenta]", point, "[/color]")
+	#CustomIndent.increase_indent()
+	#print_rich(CustomIndent, "[color=cyan]ENTERING RECURSION[/color]")
+	#print_rich(CustomIndent, "Tracing [color=yellow]", blacklisted_points, 
+			#"[/color] to [color=magenta]", point, "[/color]")
 	# the sum of polygons that can be created from this position
 	var sum: int = 0
 	# adds the current point to blacklisted points, but only if it is not the 
 	# target point
 	if not point == target_point:
 		blacklisted_points.append(point)
-	print_rich(CustomIndent, "Lines connected to point [color=magenta]", point, "[/color]: [color=orange]", \
-			_get_lines_with_point(all_lines, point), "[/color]")
+	#print_rich(CustomIndent, "Lines connected to point [color=magenta]", point, "[/color]: [color=orange]", \
+			#_get_lines_with_point(all_lines, point), "[/color]")
 	for l in _get_lines_with_point(all_lines, point):
 		# identifies the "other" point, which the the point on the given line
 		# that is not the point that was originally specified.  
 		# effectively, this allows checking points that are connected to the
 		# specified point
 		var other_point = l.other_point(point, float_error_limit)
-		print_rich(CustomIndent, "\tOther point: [color=pink]", other_point, "[/color]")
-		#print_rich("\tFrom line: [color=orange]", l, "[/color]")
+		#print_rich(CustomIndent, "\tOther point: [color=pink]", other_point, "[/color]")
 		
 		# if the point has not been blacklisted yet in this path (has not 
 		# already been traveled over)
 		#elif not blacklisted_points.has(other_point):
 		if not GlobalFunctions.vector_array_has(blacklisted_points, \
 				other_point, float_error_limit):
-			print(CustomIndent, "\t\tNot blacklisted")
 			# checks if the other point is the starting point
 			if (target_point - other_point).length() < float_error_limit:
+				#print(CustomIndent, "\t\tIs target")
 				# WARNING: make sure that this is the correct number
 				# should only be entred if the number of points so far is high
 				# enough for there to be a polygon (not simply a backstep)
 				if blacklisted_points.size() > 1:
 					sum += 1
-					print_rich(CustomIndent, "[color=green]Polygon found: ", 
-							blacklisted_points, other_point, "[/color]")
+					#print_rich(CustomIndent, "[color=green]Polygon found: ", 
+							#blacklisted_points, other_point, "[/color]")
 					#break
 			else:
+				#print(CustomIndent, "\t\tValid next step")
 				# add the total number of polygons that can be made from the 
 				# "other" point to the sum, which will be returned
 				sum += _recursive_polygon_trace(other_point, target_point, \
-						blacklisted_points, all_lines)
+						blacklisted_points.duplicate(), all_lines)
 		else:
-			print_rich(CustomIndent, "\t\t[b]BLACKLSTED[/b]")
+			pass
+			#print_rich(CustomIndent, "\t\t[b]BLACKLSTED[/b]")
 	
-	print_rich(CustomIndent, "[color=red]END OF RECURSION[/color]")
-	CustomIndent.decrease_indent()
+	#print_rich(CustomIndent, "[color=red]END OF RECURSION[/color]")
+	#CustomIndent.decrease_indent()
 	return sum
 
 func _get_connected_points(line_array: Array[LineData], p: Vector2) \

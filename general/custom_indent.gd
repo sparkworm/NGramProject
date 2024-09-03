@@ -16,7 +16,7 @@ func set_indent(amnt) -> void:
 		print_rich("[color=red][b]INDENT COUNT LESS THAN 0![/b][/color]")
 
 func _to_string() -> String:
-	var str: String = ""
+	var s: String = ""
 	for i in range(1,indent_count):
-		str += "\t"
-	return str
+		s += "\t"
+	return s
