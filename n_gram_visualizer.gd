@@ -11,7 +11,7 @@ enum DataTypes {
 
 #region export variables
 
-@export var float_error_limit: float = 0.001
+@export var float_error_limit: float = 0.01
 @export_group("Colors")
 @export var line_color: Color
 @export var point_color: Color
